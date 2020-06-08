@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: mariadb
+    restart: always
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+# Optional Database management
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8095:8080
+    environment:
+      ADMINER_DESIGN: pepa-linha
+      ADMINER_PLUGINS: tables-filter tinymce
+    depends_on:
+      - db
+
+  wp-dev:
+    image: wordpress
+    restart: always
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - 8090:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DEBUG: ${DEBUG_VALUE}
+    depends_on:
+      - db
